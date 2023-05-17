@@ -1,0 +1,73 @@
+:root {
+  --bg-color: #bcbcbc;
+  --light-border-color: #ebebeb;
+  --dark-border-color: #808080;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+.container {
+  margin: 0 auto;
+  /* max-width: 400px; */
+}
+
+.field {
+  display: flex;
+  flex-wrap: wrap;
+  width: 600px;
+  padding: 10px;
+  background-color: var(--bg-color);
+  border-left: 6px solid var(--light-border-color);
+  border-top: 6px solid var(--light-border-color);
+  border-right: 6px solid var(--dark-border-color);
+  border-bottom: 6px solid var(--dark-border-color);
+}
+
+.field__button {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  font-weight: 900;
+  background-color: var(--bg-color);
+  border-left: 6px solid var(--light-border-color);
+  border-top: 6px solid var(--light-border-color);
+  border-right: 6px solid var(--dark-border-color);
+  border-bottom: 6px solid var(--dark-border-color);
+  cursor: pointer;
+}
+
+.field__button_active {
+  border: 2px solid var(--dark-border-color);
+}
+
+.bomb_active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: red;
+}
+
+.bomb_active::after {
+  content: url(./assets/img/bomb.svg);
+  width: 24px;
+  height: 24px;
+}
+
+.field_easy {
+  width: 400px;
+}
+
+.field_middle {
+  width: 600px;
+}
+
+.field_hard {
+  width: 1000px;
+}
