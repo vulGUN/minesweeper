@@ -1,3 +1,5 @@
+@import url(font.css);
+
 :root {
   --bg-color: #bcbcbc;
   --light-border-color: #ebebeb;
@@ -14,11 +16,20 @@
 
 html {
   box-sizing: border-box;
+  font-family: 'minecraft';
 }
 
 .container {
   margin: 0 auto;
   /* max-width: 400px; */
+}
+
+.title {
+  text-align: center;
+  padding: 30px 0;
+  text-transform: uppercase;
+  font-size: clamp(10px, var(--cell-size) - 10px, 32px);
+  letter-spacing: 5px;
 }
 
 .field {
@@ -37,8 +48,8 @@ html {
 .field__button {
   width: var(--cell-size);
   height: var(--cell-size);
-  font-size: clamp(6px, var(--cell-size) - 10px, 24px);
-  font-weight: 900;
+  font-size: clamp(6px, var(--cell-size) - 18px, 20px);
+  font-family: 'minecraft';
   background-color: var(--bg-color);
   border-left: var(--border-size) solid var(--light-border-color);
   border-top: var(--border-size) solid var(--light-border-color);
@@ -51,31 +62,37 @@ html {
   border: 2px solid var(--dark-border-color);
 }
 
-.bomb_active {
+.bomb_active,
+.bomb_inactive {
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: red;
-  font-size: clamp(6px, var(--cell-size) - 10px, 20px);
+  font-size: 0px;
 }
 
-.bomb_active::after {
-  content: url(./assets/img/bomb.svg);
-  width: calc(min(var(--cell-size) - 10px, 24px));
-  height: calc(min(var(--cell-size) - 10px, 24px));
+.bomb_inactive {
+  background-color: var(--bg-color);
+}
+
+.bomb_active::after,
+.bomb_inactive::after {
+  content: url(../assets/img/bomb.svg);
+  width: clamp(6px, var(--cell-size) - 14px, 24px);
+  height: clamp(6px, var(--cell-size) - 14px, 24px);
 }
 
 .flag_active {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(6px, var(--cell-size) - 10px, 20px);
+  font-size: 0px;
 }
 
 .flag_active::after {
-  content: url(./assets/img/flag.svg);
-  width: calc(min(var(--cell-size) - 12px, 20px));
-  height: calc(min(var(--cell-size) - 12px, 20px));
+  content: url(../assets/img/flag.svg);
+  width: clamp(6px, var(--cell-size) - 18px, 20px);
+  height: clamp(6px, var(--cell-size) - 18px, 20px);
 }
 
 .field_easy {
