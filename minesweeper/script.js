@@ -60,6 +60,10 @@ buttons.forEach((i, index) => {
       }
     }
   });
+
+  i.addEventListener('dblclick', (e) => {
+    e.preventDefault();
+  });
 });
 
 const bombs = [];
