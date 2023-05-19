@@ -19,6 +19,17 @@ let playTime = 1;
 let endTime = 0;
 let timer;
 let timerActive = false;
+const audioUrls = ['./assets/audio/crash.mp3', './assets/audio/flag.mp3', './assets/audio/lose.mp3', './assets/audio/snap.mp3', './assets/audio/win.mp3'];
+
+function preloadAudio(urls) {
+  urls.forEach(function (url) {
+    var audio = new Audio();
+    audio.src = url;
+    audio.load();
+  });
+}
+
+preloadAudio(audioUrls);
 
 // установка размеров поля в зависимости от сложности
 function setBoardSize(boardSize) {
