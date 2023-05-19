@@ -16,7 +16,7 @@
 
 html {
   box-sizing: border-box;
-  font-family: 'minecraft';
+  font-family: 'Minecraft';
 }
 
 .container {
@@ -49,7 +49,7 @@ html {
   width: var(--cell-size);
   height: var(--cell-size);
   font-size: clamp(6px, var(--cell-size) - 18px, 20px);
-  font-family: 'minecraft';
+  font-family: 'Minecraft';
   background-color: var(--bg-color);
   border-left: var(--border-size) solid var(--light-border-color);
   border-top: var(--border-size) solid var(--light-border-color);
@@ -93,6 +93,16 @@ html {
   content: url(../assets/img/flag.svg);
   width: clamp(6px, var(--cell-size) - 18px, 20px);
   height: clamp(6px, var(--cell-size) - 18px, 20px);
+}
+
+.end-title {
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 700;
+  font-size: clamp(10px, var(--cell-size) - 10px, 26px);
+  padding: 20px 0;
+  text-align: center;
+  max-width: var(--field-size);
 }
 
 .field_easy {
