@@ -1,7 +1,24 @@
 const { body } = document;
 body.innerHTML += '<h1 class="title">Minesweeper</h1>';
+body.innerHTML += '<div class="menu"></div>';
 body.innerHTML += '<section class="field"></section>';
 const field = document.querySelector('.field');
+const menu = document.querySelector('.menu');
+
+const newGameBtn = document.createElement('button');
+newGameBtn.classList.add('menu__new-game-btn');
+newGameBtn.innerText = 'New game';
+menu.insertAdjacentElement('beforeend', newGameBtn);
+
+const time = document.createElement('div');
+time.classList.add('menu__time');
+time.innerText = 'Timer: 00:00';
+menu.insertAdjacentElement('beforeend', time);
+
+const steps = document.createElement('div');
+steps.classList.add('menu__steps');
+steps.innerText = 'Steps: 0';
+menu.insertAdjacentElement('beforeend', steps);
 
 const level = {
   easy: [10, 10],
@@ -16,14 +33,15 @@ let [boardSize, mineCount] = level.easy;
 let stepCounter = 0;
 let closeCellCount = boardSize ** 2;
 let endGame = false;
-let playTime = 1;
-let endTime = 0;
+let playTime = 0;
+let endTime = '00:00';
 let timer;
 let timerActive = false;
 let longPressTimer;
 let firstMove = false;
 const durationThreshold = 1000;
 
+// предзагрузка звуков, чтобы срабатывали без задержек
 function preloadAudio(urls) {
   urls.forEach(function (url) {
     let audio = new Audio();
@@ -33,6 +51,33 @@ function preloadAudio(urls) {
 }
 
 preloadAudio(audioUrls);
+
+setBoardSize(boardSize);
+initBoard(boardSize);
+
+const buttons = [...document.querySelectorAll('.field__button')];
+
+// запуск новой игры
+function startNewGame() {
+  clearInterval(timer);
+  buttons.forEach((i) => {
+    i.classList.remove(...i.classList);
+    i.classList.add('field__button');
+    i.textContent = '';
+  });
+  generateBombs();
+  stepCounter = 0;
+  closeCellCount = boardSize ** 2;
+  endGame = false;
+  playTime = 1;
+  endTime = 0;
+  timerActive = false;
+  firstMove = false;
+  steps.innerText = `Steps: 0`;
+  time.innerText = `Timer: 00:00`;
+  const endTitle = document.querySelector('.end-title');
+  endTitle.remove();
+}
 
 // установка размеров поля в зависимости от сложности
 function setBoardSize(boardSize) {
@@ -52,7 +97,7 @@ function setBoardSize(boardSize) {
   }
 }
 
-function init(boardSize) {
+function initBoard(boardSize) {
   for (let j = 0; j < boardSize ** 2; j++) {
     const cell = document.createElement('button');
     cell.classList.add('field__button');
@@ -156,6 +201,7 @@ function resizeWidth() {
 }
 
 function lose() {
+  playLoseAudio();
   for (let i = 0; i < mineCount; i++) {
     const index = bombIndex[i][0] * boardSize + bombIndex[i][1];
     const cell = document.querySelectorAll('.field__button')[index];
@@ -168,16 +214,15 @@ function lose() {
   const html = `<div class="end-title">Game over. Try again</div>`;
   body.insertAdjacentHTML('afterend', html);
   clearInterval(timer);
-  playLoseAudio();
 }
 
 function win() {
   if (closeCellCount <= mineCount && endGame === false) {
+    playWinAudio();
     endGame = true;
     const html = `<div class="end-title">Hooray! You found all mines in ${playTime} seconds and ${stepCounter} moves!</div>`;
     body.insertAdjacentHTML('afterend', html);
     clearInterval(timer);
-    playWinAudio();
   }
 }
 
@@ -185,6 +230,7 @@ function timeInterval() {
   let sec = Math.round(playTime) % 60,
     min = Math.floor(playTime / 60);
   endTime = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+  time.innerText = `Timer: ${endTime}`;
 
   if (playTime < 3599) playTime++;
 }
@@ -210,11 +256,6 @@ function playFlagAudio() {
   const audio = new Audio('./assets/audio/flag.mp3');
   audio.play();
 }
-
-setBoardSize(boardSize);
-init(boardSize);
-
-const buttons = [...document.querySelectorAll('.field__button')];
 
 buttons.forEach((i, index) => {
   const leftClick = function () {
@@ -271,6 +312,7 @@ buttons.forEach((i, index) => {
   i.addEventListener('click', () => {
     if (!i.classList.contains('field__button_active') && endGame === false) {
       ++stepCounter;
+      steps.innerText = `Steps: ${stepCounter}`;
       i.classList.contains('flag_active') ? null : playSnapAudio();
     }
     leftClick();
@@ -284,3 +326,4 @@ generateBombs();
 
 window.addEventListener('resize', resizeWidth);
 window.addEventListener('load', resizeWidth);
+newGameBtn.addEventListener('click', startNewGame);
