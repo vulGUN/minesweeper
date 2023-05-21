@@ -297,7 +297,8 @@ buttons.forEach((i, index) => {
     longPressTimer = setTimeout(handleLongPress, durationThreshold);
   }
 
-  function endLongPress() {
+  function endLongPress(e) {
+    e.preventDefault();
     clearTimeout(longPressTimer);
   }
 
