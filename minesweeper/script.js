@@ -9,9 +9,10 @@ const level = {
   hard: [25, 99],
 };
 
+const audioUrls = ['./assets/audio/crash.mp3', './assets/audio/flag.mp3', './assets/audio/lose.mp3', './assets/audio/snap.mp3', './assets/audio/win.mp3'];
+let bombIndex = [];
+let bombs = [];
 let [boardSize, mineCount] = level.easy;
-const bombIndex = [];
-const bombs = [];
 let stepCounter = 0;
 let closeCellCount = boardSize ** 2;
 let endGame = false;
@@ -19,11 +20,13 @@ let playTime = 1;
 let endTime = 0;
 let timer;
 let timerActive = false;
-const audioUrls = ['./assets/audio/crash.mp3', './assets/audio/flag.mp3', './assets/audio/lose.mp3', './assets/audio/snap.mp3', './assets/audio/win.mp3'];
+let longPressTimer;
+let firstMove = false;
+const durationThreshold = 1000;
 
 function preloadAudio(urls) {
   urls.forEach(function (url) {
-    var audio = new Audio();
+    let audio = new Audio();
     audio.src = url;
     audio.load();
   });
@@ -74,6 +77,8 @@ function calculateBombCount(row, col) {
 }
 
 function generateBombs() {
+  bombIndex = [];
+  bombs = [];
   while (bombIndex.length < mineCount) {
     const randomRow = Math.floor(Math.random() * boardSize);
     const randomCol = Math.floor(Math.random() * boardSize);
@@ -210,6 +215,7 @@ setBoardSize(boardSize);
 init(boardSize);
 
 const buttons = [...document.querySelectorAll('.field__button')];
+
 buttons.forEach((i, index) => {
   const leftClick = function () {
     if (!i.classList.contains('flag_active') && !endGame) {
@@ -221,12 +227,16 @@ buttons.forEach((i, index) => {
         timerActive = true;
       }
 
-      if (bombs[row][col]) {
+      if (bombs[row][col] && !firstMove) {
+        generateBombs();
+        leftClick();
+      } else if (bombs[row][col] && firstMove) {
         i.classList.add('bomb_active', 'field__button_active');
         lose();
       } else {
         openCell(row, col);
       }
+      firstMove = true;
     }
   };
 
@@ -242,6 +252,22 @@ buttons.forEach((i, index) => {
     }
   };
 
+  function startLongPress() {
+    longPressTimer = setTimeout(handleLongPress, durationThreshold);
+  }
+
+  function endLongPress() {
+    clearTimeout(longPressTimer);
+  }
+
+  function handleLongPress() {
+    if (!i.classList.contains('field__button_active') && endGame === false) {
+      i.classList.toggle('flag_active');
+    }
+  }
+
+  i.addEventListener('touchstart', startLongPress);
+  i.addEventListener('touchend', endLongPress);
   i.addEventListener('click', () => {
     if (!i.classList.contains('field__button_active') && endGame === false) {
       ++stepCounter;
