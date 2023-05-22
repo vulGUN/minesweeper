@@ -12,7 +12,7 @@ menu.insertAdjacentElement('beforeend', newGameBtn);
 
 const time = document.createElement('div');
 time.classList.add('menu__time');
-time.innerText = 'Timer: 00:00';
+time.innerText = 'Time: 00:00';
 menu.insertAdjacentElement('beforeend', time);
 
 const steps = document.createElement('div');
@@ -33,7 +33,7 @@ let [boardSize, mineCount] = level.easy;
 let stepCounter = 0;
 let closeCellCount = boardSize ** 2;
 let endGame = false;
-let playTime = 0;
+let playTime = 1;
 let endTime = '00:00';
 let timer;
 let timerActive = false;
@@ -74,7 +74,7 @@ function startNewGame() {
   timerActive = false;
   firstMove = false;
   steps.innerText = `Steps: 0`;
-  time.innerText = `Timer: 00:00`;
+  time.innerText = `Time: 00:00`;
   const endTitle = document.querySelector('.end-title');
   endTitle.remove();
 }
@@ -230,7 +230,7 @@ function timeInterval() {
   let sec = Math.round(playTime) % 60,
     min = Math.floor(playTime / 60);
   endTime = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-  time.innerText = `Timer: ${endTime}`;
+  time.innerText = `Time: ${endTime}`;
 
   if (playTime < 3599) playTime++;
 }
@@ -297,8 +297,7 @@ buttons.forEach((i, index) => {
     longPressTimer = setTimeout(handleLongPress, durationThreshold);
   }
 
-  function endLongPress(e) {
-    e.preventDefault();
+  function endLongPress() {
     clearTimeout(longPressTimer);
   }
 
