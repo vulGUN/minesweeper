@@ -134,7 +134,7 @@ html {
 }
 
 .field__button_active {
-  border: 2px solid var(--dark-border-color);
+  border: 2px solid #646464;
 }
 
 .bomb_active,

@@ -107,6 +107,7 @@ function startNewGame() {
   firstMove = false;
   flagCounter = 0;
   activeButtons(buttons);
+  activeButtons(buttons);
   generateBombs();
   steps.innerText = `Steps: 0`;
   time.innerText = `Time: 00:00`;
@@ -223,7 +224,6 @@ function resizeWidth() {
     fieldWidth = boardSize * cellWidth;
   }
   if (window.innerWidth <= 430 && inputLevel.value === 'easy') {
-    console.log(window.innerWidth);
     cellWidth = (window.innerWidth - 42) / boardSize;
     fieldWidth = window.innerWidth - 42;
   }
@@ -296,8 +296,8 @@ function playFlagAudio() {
   audio.play();
 }
 
-function activeButtons(buttons) {
-  buttons.forEach((i, index) => {
+function activeButtons(btns) {
+  btns.forEach((i, index) => {
     const leftClick = function () {
       if (!i.classList.contains('flag_active') && !endGame) {
         const row = Math.floor(index / boardSize);
@@ -327,6 +327,7 @@ function activeButtons(buttons) {
 
     const rightClick = function (e) {
       e.preventDefault();
+      console.log('ok');
       if (!i.classList.contains('field__button_active') && endGame === false) {
         i.classList.toggle('flag_active');
         playFlagAudio();
@@ -370,27 +371,44 @@ window.addEventListener('resize', resizeWidth);
 window.addEventListener('load', resizeWidth);
 newGameBtn.addEventListener('click', startNewGame);
 
-const switchOn = document.querySelector('.dark-mode');
-const switchOff = document.querySelector('.light-mode');
+const darkMode = document.querySelector('.dark-mode');
+const lightMode = document.querySelector('.light-mode');
 
-switchOn.addEventListener('click', () => {
-  switchOn.classList.add('inactive');
-  switchOff.classList.remove('inactive');
+function activeLightMode() {
+  darkMode.classList.add('inactive');
+  lightMode.classList.remove('inactive');
 
   const root = document.documentElement;
   root.style.setProperty('--body-color', '#ececec');
   root.style.setProperty('--text-color', '#242424');
-});
 
-switchOff.addEventListener('click', (e) => {
-  switchOff.classList.add('inactive');
-  switchOn.classList.remove('inactive');
+  localStorage.setItem('theme', 'light');
+}
+
+function activeDarkMode() {
+  lightMode.classList.add('inactive');
+  darkMode.classList.remove('inactive');
 
   const root = document.documentElement;
 
   root.style.setProperty('--body-color', '#242424');
   root.style.setProperty('--text-color', '#ececec');
-});
+
+  localStorage.setItem('theme', 'dark');
+}
+
+darkMode.addEventListener('click', activeLightMode);
+lightMode.addEventListener('click', activeDarkMode);
+
+function getLocalStorage() {
+  if (localStorage.getItem('theme') === 'dark') {
+    activeDarkMode();
+  } else {
+    activeLightMode();
+  }
+}
+
+window.addEventListener('load', getLocalStorage);
 
 inputLevel.addEventListener('change', (e) => {
   switch (e.target.value) {
