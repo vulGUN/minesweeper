@@ -67,6 +67,7 @@ let playTime = 1;
 let endTime = '00:00';
 let timer;
 let timerActive = false;
+let flagCount = mineCount;
 let flagCounter = 0;
 let longPressTimer;
 let firstMove = false;
@@ -91,12 +92,9 @@ let buttons = [...document.querySelectorAll('.field__button')];
 // запуск новой игры
 function startNewGame() {
   clearInterval(timer);
+  field.innerHTML = '';
+  initBoard(boardSize);
   buttons = [...document.querySelectorAll('.field__button')];
-  buttons.forEach((i) => {
-    i.classList.remove(...i.classList);
-    i.classList.add('field__button');
-    i.textContent = '';
-  });
   stepCounter = 0;
   mineCount = bombInput.value;
   closeCellCount = boardSize ** 2;
@@ -105,8 +103,8 @@ function startNewGame() {
   endTime = 0;
   timerActive = false;
   firstMove = false;
+  flagCount = mineCount;
   flagCounter = 0;
-  activeButtons(buttons);
   activeButtons(buttons);
   generateBombs();
   steps.innerText = `Steps: 0`;
@@ -325,6 +323,8 @@ function activeButtons(btns) {
       e.preventDefault();
     };
 
+    i.removeEventListener('dblclick', dblclick);
+
     const rightClick = function (e) {
       e.preventDefault();
       console.log('ok');
@@ -371,6 +371,7 @@ window.addEventListener('resize', resizeWidth);
 window.addEventListener('load', resizeWidth);
 newGameBtn.addEventListener('click', startNewGame);
 
+// темная и светлые темы
 const darkMode = document.querySelector('.dark-mode');
 const lightMode = document.querySelector('.light-mode');
 
@@ -400,6 +401,8 @@ function activeDarkMode() {
 darkMode.addEventListener('click', activeLightMode);
 lightMode.addEventListener('click', activeDarkMode);
 
+console.log(localStorage.getItem('theme', 'dark'));
+
 function getLocalStorage() {
   if (localStorage.getItem('theme') === 'dark') {
     activeDarkMode();
@@ -410,6 +413,7 @@ function getLocalStorage() {
 
 window.addEventListener('load', getLocalStorage);
 
+// смена уровней сложности и размера доски
 inputLevel.addEventListener('change', (e) => {
   switch (e.target.value) {
     case 'easy':
@@ -442,6 +446,7 @@ inputLevel.addEventListener('change', (e) => {
   }
 });
 
+// установка количества бомб
 bombInput.addEventListener('input', () => {
   bombCurentCount.innerText = bombInput.value;
 });
