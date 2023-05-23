@@ -1,9 +1,38 @@
 const { body } = document;
+body.innerHTML += `
+<header class="header">
+    <nav>
+      <ul class="header__wrapper">
+        <li class="level">
+          <div class="level__title">level:</div>
+          <select name="level" id="level-select">
+            <option value="easy" selected>easy</option>
+            <option value="middle">middle</option>
+            <option value="hard">hard</option>
+          </select>
+        </li>
+        <li class="theme">
+          <div class="theme__title">Theme:</div>
+          <button class="theme__btn dark-mode inactive"><img src="./assets/img/moon-solid.svg" alt="moon"></button>
+          <button class="theme__btn light-mode"><img src="./assets/img/sun-solid.svg" alt="sun"></button>
+        </li>
+        <li class="bomb">
+          <div class="bomb__title">bomb:</div>
+          <input id="bomb__input" type="range" value="10" min="10" max="99">
+          <div class="bomb__current-count">10</div>
+        </li>
+      </ul>
+    </nav>
+  </header>
+`;
 body.innerHTML += '<h1 class="title">Minesweeper</h1>';
 body.innerHTML += '<div class="menu"></div>';
 body.innerHTML += '<section class="field"></section>';
 const field = document.querySelector('.field');
 const menu = document.querySelector('.menu');
+const inputLevel = document.querySelector('#level-select');
+const bombInput = document.querySelector('#bomb__input');
+const bombCurentCount = document.querySelector('.bomb__current-count');
 
 const newGameBtn = document.createElement('button');
 newGameBtn.classList.add('menu__new-game-btn');
@@ -21,15 +50,16 @@ steps.innerText = 'Steps: 0';
 menu.insertAdjacentElement('beforeend', steps);
 
 const level = {
-  easy: [10, 10],
-  middle: [15, 25],
-  hard: [25, 99],
+  easy: 10,
+  middle: 15,
+  hard: 25,
 };
 
 const audioUrls = ['./assets/audio/crash.mp3', './assets/audio/flag.mp3', './assets/audio/lose.mp3', './assets/audio/snap.mp3', './assets/audio/win.mp3'];
 let bombIndex = [];
 let bombs = [];
-let [boardSize, mineCount] = level.easy;
+let boardSize = level.easy;
+let mineCount = bombInput.value;
 let stepCounter = 0;
 let closeCellCount = boardSize ** 2;
 let endGame = false;
@@ -37,6 +67,7 @@ let playTime = 1;
 let endTime = '00:00';
 let timer;
 let timerActive = false;
+let flagCounter = 0;
 let longPressTimer;
 let firstMove = false;
 const durationThreshold = 1000;
@@ -52,49 +83,41 @@ function preloadAudio(urls) {
 
 preloadAudio(audioUrls);
 
-setBoardSize(boardSize);
+clearBoardSize();
 initBoard(boardSize);
 
-const buttons = [...document.querySelectorAll('.field__button')];
+let buttons = [...document.querySelectorAll('.field__button')];
 
 // запуск новой игры
 function startNewGame() {
   clearInterval(timer);
+  buttons = [...document.querySelectorAll('.field__button')];
   buttons.forEach((i) => {
     i.classList.remove(...i.classList);
     i.classList.add('field__button');
     i.textContent = '';
   });
-  generateBombs();
   stepCounter = 0;
+  mineCount = bombInput.value;
   closeCellCount = boardSize ** 2;
   endGame = false;
   playTime = 1;
   endTime = 0;
   timerActive = false;
   firstMove = false;
+  flagCounter = 0;
+  activeButtons(buttons);
+  generateBombs();
   steps.innerText = `Steps: 0`;
   time.innerText = `Time: 00:00`;
   const endTitle = document.querySelector('.end-title');
-  endTitle.remove();
+  if (endTitle) endTitle.remove();
 }
 
 // установка размеров поля в зависимости от сложности
-function setBoardSize(boardSize) {
-  switch (boardSize) {
-    case 10:
-      field.classList.remove(...field.classList);
-      field.classList.add('field', 'field_easy');
-      break;
-    case 15:
-      field.classList.remove(...field.classList);
-      field.classList.add('field', 'field_middle');
-      break;
-    case 25:
-      field.classList.remove(...field.classList);
-      field.classList.add('field', 'field_hard');
-      break;
-  }
+function clearBoardSize() {
+  field.innerHTML = '';
+  field.classList.add('field');
 }
 
 function initBoard(boardSize) {
@@ -189,12 +212,28 @@ function openCell(row, col) {
 function resizeWidth() {
   const root = document.documentElement;
   let cellWidth, fieldWidth;
-  if (window.innerWidth >= 430) {
+  if (inputLevel.value === 'easy') {
     cellWidth = 400 / boardSize;
     fieldWidth = boardSize * cellWidth;
-  } else {
-    cellWidth = (window.innerWidth - 32) / boardSize;
-    fieldWidth = window.innerWidth - 32;
+  } else if (inputLevel.value === 'middle') {
+    cellWidth = 600 / boardSize;
+    fieldWidth = boardSize * cellWidth;
+  } else if (inputLevel.value === 'hard') {
+    cellWidth = 1000 / boardSize;
+    fieldWidth = boardSize * cellWidth;
+  }
+  if (window.innerWidth <= 430 && inputLevel.value === 'easy') {
+    console.log(window.innerWidth);
+    cellWidth = (window.innerWidth - 42) / boardSize;
+    fieldWidth = window.innerWidth - 42;
+  }
+  if (window.innerWidth <= 645 && inputLevel.value === 'middle') {
+    cellWidth = (window.innerWidth - 42) / boardSize;
+    fieldWidth = window.innerWidth - 42;
+  }
+  if (window.innerWidth <= 1050 && inputLevel.value === 'hard') {
+    cellWidth = (window.innerWidth - 42) / boardSize;
+    fieldWidth = window.innerWidth - 42;
   }
   root.style.setProperty('--cell-size', `${cellWidth}px`);
   root.style.setProperty('--field-size', `${fieldWidth}px`);
@@ -220,7 +259,7 @@ function win() {
   if (closeCellCount <= mineCount && endGame === false) {
     playWinAudio();
     endGame = true;
-    const html = `<div class="end-title">Hooray! You found all mines in ${playTime} seconds and ${stepCounter} moves!</div>`;
+    const html = `<div class="end-title">Hooray! You found all mines in ${playTime - 1} seconds and ${stepCounter} moves!</div>`;
     body.insertAdjacentHTML('afterend', html);
     clearInterval(timer);
   }
@@ -257,73 +296,137 @@ function playFlagAudio() {
   audio.play();
 }
 
-buttons.forEach((i, index) => {
-  const leftClick = function () {
-    if (!i.classList.contains('flag_active') && !endGame) {
-      const row = Math.floor(index / boardSize);
-      const col = index % boardSize;
+function activeButtons(buttons) {
+  buttons.forEach((i, index) => {
+    const leftClick = function () {
+      if (!i.classList.contains('flag_active') && !endGame) {
+        const row = Math.floor(index / boardSize);
+        const col = index % boardSize;
 
-      if (!timerActive) {
-        timer = setInterval(timeInterval, 1000);
-        timerActive = true;
+        if (!timerActive) {
+          timer = setInterval(timeInterval, 1000);
+          timerActive = true;
+        }
+
+        if (bombs[row][col] && !firstMove) {
+          generateBombs();
+          leftClick();
+        } else if (bombs[row][col] && firstMove) {
+          i.classList.add('bomb_active', 'field__button_active');
+          lose();
+        } else {
+          openCell(row, col);
+        }
+        firstMove = true;
       }
+    };
 
-      if (bombs[row][col] && !firstMove) {
-        generateBombs();
-        leftClick();
-      } else if (bombs[row][col] && firstMove) {
-        i.classList.add('bomb_active', 'field__button_active');
-        lose();
-      } else {
-        openCell(row, col);
+    const dblclick = function (e) {
+      e.preventDefault();
+    };
+
+    const rightClick = function (e) {
+      e.preventDefault();
+      if (!i.classList.contains('field__button_active') && endGame === false) {
+        i.classList.toggle('flag_active');
+        playFlagAudio();
       }
-      firstMove = true;
+    };
+
+    function startLongPress() {
+      longPressTimer = setTimeout(handleLongPress, durationThreshold);
     }
-  };
 
-  const dblclick = function (e) {
-    e.preventDefault();
-  };
-
-  const rightClick = function (e) {
-    e.preventDefault();
-    if (!i.classList.contains('field__button_active') && endGame === false) {
-      i.classList.toggle('flag_active');
-      playFlagAudio();
+    function endLongPress() {
+      clearTimeout(longPressTimer);
     }
-  };
 
-  function startLongPress() {
-    longPressTimer = setTimeout(handleLongPress, durationThreshold);
-  }
-
-  function endLongPress() {
-    clearTimeout(longPressTimer);
-  }
-
-  function handleLongPress() {
-    if (!i.classList.contains('field__button_active') && endGame === false) {
-      i.classList.toggle('flag_active');
+    function handleLongPress() {
+      if (!i.classList.contains('field__button_active') && endGame === false) {
+        i.classList.toggle('flag_active');
+      }
     }
-  }
 
-  i.addEventListener('touchstart', startLongPress);
-  i.addEventListener('touchend', endLongPress);
-  i.addEventListener('click', () => {
-    if (!i.classList.contains('field__button_active') && endGame === false) {
-      ++stepCounter;
-      steps.innerText = `Steps: ${stepCounter}`;
-      i.classList.contains('flag_active') ? null : playSnapAudio();
-    }
-    leftClick();
-    win();
+    i.addEventListener('touchstart', startLongPress);
+    i.addEventListener('touchend', endLongPress);
+    i.addEventListener('click', () => {
+      if (!i.classList.contains('field__button_active') && endGame === false) {
+        ++stepCounter;
+        steps.innerText = `Steps: ${stepCounter}`;
+        i.classList.contains('flag_active') ? null : playSnapAudio();
+      }
+      leftClick();
+      win();
+    });
+    i.addEventListener('dblclick', dblclick);
+    i.addEventListener('contextmenu', rightClick);
   });
-  i.addEventListener('dblclick', dblclick);
-  i.addEventListener('contextmenu', rightClick);
-});
+}
 
+activeButtons(buttons);
 generateBombs();
 
 window.addEventListener('resize', resizeWidth);
 window.addEventListener('load', resizeWidth);
 newGameBtn.addEventListener('click', startNewGame);
+
+const switchOn = document.querySelector('.dark-mode');
+const switchOff = document.querySelector('.light-mode');
+
+switchOn.addEventListener('click', () => {
+  switchOn.classList.add('inactive');
+  switchOff.classList.remove('inactive');
+
+  const root = document.documentElement;
+  root.style.setProperty('--body-color', '#ececec');
+  root.style.setProperty('--text-color', '#242424');
+});
+
+switchOff.addEventListener('click', (e) => {
+  switchOff.classList.add('inactive');
+  switchOn.classList.remove('inactive');
+
+  const root = document.documentElement;
+
+  root.style.setProperty('--body-color', '#242424');
+  root.style.setProperty('--text-color', '#ececec');
+});
+
+inputLevel.addEventListener('change', (e) => {
+  switch (e.target.value) {
+    case 'easy':
+      boardSize = level.easy;
+      resizeWidth();
+      clearBoardSize();
+      initBoard(boardSize);
+      startNewGame();
+      break;
+    case 'middle':
+      boardSize = level.middle;
+      resizeWidth();
+      clearBoardSize();
+      initBoard(boardSize);
+      startNewGame();
+      break;
+    case 'hard':
+      boardSize = level.hard;
+      resizeWidth();
+      clearBoardSize();
+      initBoard(boardSize);
+      startNewGame();
+      break;
+    default:
+      boardSize = level.easy;
+      resizeWidth();
+      clearBoardSize();
+      initBoard(boardSize);
+      startNewGame();
+  }
+});
+
+bombInput.addEventListener('input', () => {
+  bombCurentCount.innerText = bombInput.value;
+});
+bombInput.addEventListener('change', () => {
+  startNewGame();
+});
