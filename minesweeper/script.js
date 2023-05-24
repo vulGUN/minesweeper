@@ -170,6 +170,7 @@ function generateBombs() {
   });
 }
 
+// действие после нажатия на ячеку, если она не бомба
 function openCell(row, col) {
   const cellIndex = row * boardSize + col;
   const cell = document.querySelectorAll('.field__button')[cellIndex];
@@ -212,6 +213,7 @@ function openCell(row, col) {
   }
 }
 
+// изменение размеров ячеек в зависимости от ширины экрана
 function resizeWidth() {
   const root = document.documentElement;
   let cellWidth, fieldWidth;
@@ -267,11 +269,13 @@ function win() {
   }
 }
 
+// таймер
 function timeInterval() {
   if (playTime < 9999) playTime++;
   time.innerText = `${playTime}`;
 }
 
+// звуки игры
 function playWinAudio() {
   const audio = new Audio('./assets/audio/win.mp3');
   audio.play();
@@ -294,6 +298,7 @@ function playFlagAudio() {
   audio.play();
 }
 
+// действия по нажатию на ячейки
 function activeButtons(btns) {
   btns.forEach((i, index) => {
     const leftClick = function () {
@@ -337,17 +342,11 @@ function activeButtons(btns) {
     };
 
     function startLongPress() {
-      longPressTimer = setTimeout(handleLongPress, durationThreshold);
+      longPressTimer = setTimeout(rightClick, durationThreshold);
     }
 
     function endLongPress() {
       clearTimeout(longPressTimer);
-    }
-
-    function handleLongPress() {
-      if (!i.classList.contains('field__button_active') && endGame === false) {
-        i.classList.toggle('flag_active');
-      }
     }
 
     i.addEventListener('touchstart', startLongPress);
