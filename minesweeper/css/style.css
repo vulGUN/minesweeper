@@ -2,9 +2,9 @@
 
 :root {
   --text-color: #242424;
-  --body-color: #ececec;
+  --body-color: #fff;
   --bg-color: #bcbcbc;
-  --light-border-color: #ebebeb;
+  --light-border-color: #dfdfdf;
   --dark-border-color: #808080;
   --cell-size: 40px;
   --field-size: 400px;
@@ -98,14 +98,46 @@ html {
   text-transform: uppercase;
   font-weight: 700;
   cursor: pointer;
+  background-color: var(--bg-color);
+  border-left: var(--border-size) solid var(--light-border-color);
+  border-top: var(--border-size) solid var(--light-border-color);
+  border-right: var(--border-size) solid var(--dark-border-color);
+  border-bottom: var(--border-size) solid var(--dark-border-color);
+}
+
+.menu__new-game-btn:active {
+  border: 2px solid #646464;
 }
 
 .menu__time,
-.menu__steps {
+.menu__steps,
+.menu__flags {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   font-size: clamp(10px, var(--cell-size) - 10px, 20px);
   font-weight: 700;
   color: #242424;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 6px;
+}
+
+.menu__flags::before {
+  content: url(../assets/img/flag.svg);
+  width: 28px;
+  height: 28px;
+}
+
+.menu__steps::before {
+  content: url(../assets/img/steps.svg);
+  width: 34px;
+  height: 30px;
+}
+
+.menu__time::before {
+  content: url(../assets/img/timer.svg);
+  width: 30px;
+  height: 30px;
 }
 
 .field {

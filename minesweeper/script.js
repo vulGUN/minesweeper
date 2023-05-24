@@ -3,6 +3,11 @@ body.innerHTML += `
 <header class="header">
     <nav>
       <ul class="header__wrapper">
+        <li class="theme">
+          <div class="theme__title">Theme:</div>
+          <button class="theme__btn dark-mode inactive"><img src="./assets/img/moon-solid.svg" alt="moon"></button>
+          <button class="theme__btn light-mode"><img src="./assets/img/sun-solid.svg" alt="sun"></button>
+        </li>
         <li class="level">
           <div class="level__title">level:</div>
           <select name="level" id="level-select">
@@ -10,11 +15,6 @@ body.innerHTML += `
             <option value="middle">middle</option>
             <option value="hard">hard</option>
           </select>
-        </li>
-        <li class="theme">
-          <div class="theme__title">Theme:</div>
-          <button class="theme__btn dark-mode inactive"><img src="./assets/img/moon-solid.svg" alt="moon"></button>
-          <button class="theme__btn light-mode"><img src="./assets/img/sun-solid.svg" alt="sun"></button>
         </li>
         <li class="bomb">
           <div class="bomb__title">bomb:</div>
@@ -39,16 +39,6 @@ newGameBtn.classList.add('menu__new-game-btn');
 newGameBtn.innerText = 'New game';
 menu.insertAdjacentElement('beforeend', newGameBtn);
 
-const time = document.createElement('div');
-time.classList.add('menu__time');
-time.innerText = 'Time: 00:00';
-menu.insertAdjacentElement('beforeend', time);
-
-const steps = document.createElement('div');
-steps.classList.add('menu__steps');
-steps.innerText = 'Steps: 0';
-menu.insertAdjacentElement('beforeend', steps);
-
 const level = {
   easy: 10,
   middle: 15,
@@ -63,8 +53,7 @@ let mineCount = bombInput.value;
 let stepCounter = 0;
 let closeCellCount = boardSize ** 2;
 let endGame = false;
-let playTime = 1;
-let endTime = '00:00';
+let playTime = 0;
 let timer;
 let timerActive = false;
 let flagCount = mineCount;
@@ -72,6 +61,21 @@ let flagCounter = 0;
 let longPressTimer;
 let firstMove = false;
 const durationThreshold = 1000;
+
+const flags = document.createElement('div');
+flags.classList.add('menu__flags');
+flags.innerText = `${flagCount}`;
+menu.insertAdjacentElement('beforeend', flags);
+
+const time = document.createElement('div');
+time.classList.add('menu__time');
+time.innerText = `${playTime}`;
+menu.insertAdjacentElement('beforeend', time);
+
+const steps = document.createElement('div');
+steps.classList.add('menu__steps');
+steps.innerText = `${stepCounter}`;
+menu.insertAdjacentElement('beforeend', steps);
 
 // предзагрузка звуков, чтобы срабатывали без задержек
 function preloadAudio(urls) {
@@ -99,16 +103,16 @@ function startNewGame() {
   mineCount = bombInput.value;
   closeCellCount = boardSize ** 2;
   endGame = false;
-  playTime = 1;
-  endTime = 0;
+  playTime = 0;
   timerActive = false;
   firstMove = false;
   flagCount = mineCount;
   flagCounter = 0;
   activeButtons(buttons);
   generateBombs();
-  steps.innerText = `Steps: 0`;
-  time.innerText = `Time: 00:00`;
+  flags.innerText = `${flagCount}`;
+  steps.innerText = `${stepCounter}`;
+  time.innerText = `${playTime}`;
   const endTitle = document.querySelector('.end-title');
   if (endTitle) endTitle.remove();
 }
@@ -170,7 +174,7 @@ function openCell(row, col) {
   const cellIndex = row * boardSize + col;
   const cell = document.querySelectorAll('.field__button')[cellIndex];
 
-  if (cell.classList.contains('field__button_active')) {
+  if (cell.classList.contains('field__button_active') || cell.classList.contains('flag_active')) {
     return;
   }
 
@@ -257,19 +261,15 @@ function win() {
   if (closeCellCount <= mineCount && endGame === false) {
     playWinAudio();
     endGame = true;
-    const html = `<div class="end-title">Hooray! You found all mines in ${playTime - 1} seconds and ${stepCounter} moves!</div>`;
+    const html = `<div class="end-title">Hooray! You found all mines in ${playTime} seconds and ${stepCounter} moves!</div>`;
     body.insertAdjacentHTML('afterend', html);
     clearInterval(timer);
   }
 }
 
 function timeInterval() {
-  let sec = Math.round(playTime) % 60,
-    min = Math.floor(playTime / 60);
-  endTime = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-  time.innerText = `Time: ${endTime}`;
-
-  if (playTime < 3599) playTime++;
+  if (playTime < 9999) playTime++;
+  time.innerText = `${playTime}`;
 }
 
 function playWinAudio() {
@@ -323,13 +323,15 @@ function activeButtons(btns) {
       e.preventDefault();
     };
 
-    i.removeEventListener('dblclick', dblclick);
-
     const rightClick = function (e) {
       e.preventDefault();
-      console.log('ok');
-      if (!i.classList.contains('field__button_active') && endGame === false) {
-        i.classList.toggle('flag_active');
+      if (!i.classList.contains('field__button_active') && endGame === false && !i.classList.contains('flag_active') && flagCount > 0) {
+        i.classList.add('flag_active');
+        flags.innerText = --flagCount;
+        playFlagAudio();
+      } else if (!i.classList.contains('field__button_active') && endGame === false && i.classList.contains('flag_active')) {
+        i.classList.remove('flag_active');
+        flags.innerText = ++flagCount;
         playFlagAudio();
       }
     };
@@ -351,9 +353,9 @@ function activeButtons(btns) {
     i.addEventListener('touchstart', startLongPress);
     i.addEventListener('touchend', endLongPress);
     i.addEventListener('click', () => {
-      if (!i.classList.contains('field__button_active') && endGame === false) {
+      if (!i.classList.contains('field__button_active') && endGame === false && !i.classList.contains('flag_active')) {
         ++stepCounter;
-        steps.innerText = `Steps: ${stepCounter}`;
+        steps.innerText = `${stepCounter}`;
         i.classList.contains('flag_active') ? null : playSnapAudio();
       }
       leftClick();
@@ -380,7 +382,7 @@ function activeLightMode() {
   lightMode.classList.remove('inactive');
 
   const root = document.documentElement;
-  root.style.setProperty('--body-color', '#ececec');
+  root.style.setProperty('--body-color', '#ffffff');
   root.style.setProperty('--text-color', '#242424');
 
   localStorage.setItem('theme', 'light');
@@ -393,15 +395,13 @@ function activeDarkMode() {
   const root = document.documentElement;
 
   root.style.setProperty('--body-color', '#242424');
-  root.style.setProperty('--text-color', '#ececec');
+  root.style.setProperty('--text-color', '#ffffff');
 
   localStorage.setItem('theme', 'dark');
 }
 
 darkMode.addEventListener('click', activeLightMode);
 lightMode.addEventListener('click', activeDarkMode);
-
-console.log(localStorage.getItem('theme', 'dark'));
 
 function getLocalStorage() {
   if (localStorage.getItem('theme') === 'dark') {
