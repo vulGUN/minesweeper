@@ -21,6 +21,9 @@ body.innerHTML += `
           <input id="bomb__input" type="range" value="10" min="10" max="99">
           <div class="bomb__current-count">10</div>
         </li>
+        <li class="results">
+          <div class="results__title">results</div>
+        </li>
       </ul>
     </nav>
   </header>
@@ -28,6 +31,24 @@ body.innerHTML += `
 body.innerHTML += '<h1 class="title">Minesweeper</h1>';
 body.innerHTML += '<div class="menu"></div>';
 body.innerHTML += '<section class="field"></section>';
+body.innerHTML += '<div class="dark-bg"></div>';
+body.innerHTML += `
+  <table class="results__table">
+    <thead>
+      <th class="results__header table-steps">Steps</th>
+      <th class="results__header table-time">Time</th>
+      <th class="results__header table-result">Result</th>
+    </thead>
+    <tbody class="results__body"></tbody>
+    <tfoot>
+    <tr>
+      <td colspan="3">
+        <button class="results__button">Закрыть</button>
+      </td>
+    </tr>
+  </tfoot>
+  </table>
+`;
 const field = document.querySelector('.field');
 const menu = document.querySelector('.menu');
 const inputLevel = document.querySelector('#level-select');
@@ -60,6 +81,7 @@ let flagCount = mineCount;
 let flagCounter = 0;
 let longPressTimer;
 let firstMove = false;
+let resultsArr = [];
 const durationThreshold = 1000;
 
 const flags = document.createElement('div');
@@ -257,6 +279,7 @@ function lose() {
   const html = `<div class="end-title">Game over. Try again</div>`;
   body.insertAdjacentHTML('afterend', html);
   clearInterval(timer);
+  addResultLine('lose');
 }
 
 function win() {
@@ -266,6 +289,7 @@ function win() {
     const html = `<div class="end-title">Hooray! You found all mines in ${playTime} seconds and ${stepCounter} moves!</div>`;
     body.insertAdjacentHTML('afterend', html);
     clearInterval(timer);
+    addResultLine('win');
   }
 }
 
@@ -408,8 +432,18 @@ function getLocalStorage() {
   } else {
     activeLightMode();
   }
+  if (localStorage.getItem('results')) {
+    const getData = localStorage.getItem('results');
+    resultsArr = JSON.parse(getData);
+    generateResults(resultsArr);
+  }
 }
 
+function setLocalStorage() {
+  localStorage.setItem('results', JSON.stringify(resultsArr));
+}
+
+window.addEventListener('beforeunload', setLocalStorage);
 window.addEventListener('load', getLocalStorage);
 
 // смена уровней сложности и размера доски
@@ -452,3 +486,57 @@ bombInput.addEventListener('input', () => {
 bombInput.addEventListener('change', () => {
   startNewGame();
 });
+
+// результаты
+
+const resultsBtnOpen = document.querySelector('.results__title');
+const resultsBtnClose = document.querySelector('.results__button');
+const results = document.querySelector('.results__table');
+const resultsBody = document.querySelector('.results__body');
+const darkBg = document.querySelector('.dark-bg');
+
+resultsBtnOpen.addEventListener('click', () => {
+  results.classList.add('active');
+  darkBg.classList.add('active');
+});
+
+resultsBtnClose.addEventListener('click', () => {
+  results.classList.remove('active');
+  darkBg.classList.remove('active');
+});
+
+function addResultLine(text) {
+  resultsArr.push([stepCounter, playTime, text]);
+  console.log(resultsArr);
+  updateResults();
+}
+
+function generateResults(arr) {
+  if (arr.length > 0) {
+    for (let j = 0; j < arr.length; j++) {
+      const tr = document.createElement('tr');
+      resultsBody.insertAdjacentElement('beforeend', tr);
+      for (let i = 0; i < 3; i++) {
+        const td = document.createElement('td');
+        td.innerText = arr[j][i];
+        tr.insertAdjacentElement('beforeend', td);
+      }
+    }
+  }
+}
+
+function updateResults() {
+  if (resultsArr.length <= 10) {
+    const tr = document.createElement('tr');
+    resultsBody.insertAdjacentElement('beforeend', tr);
+    for (let i = 0; i < 3; i++) {
+      const td = document.createElement('td');
+      td.innerText = resultsArr[resultsArr.length - 1][i];
+      tr.insertAdjacentElement('beforeend', td);
+    }
+  } else {
+    resultsArr.shift();
+    resultsBody.children[1].remove();
+    updateResults();
+  }
+}

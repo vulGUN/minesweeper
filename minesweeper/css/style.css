@@ -3,7 +3,7 @@
 :root {
   --text-color: #242424;
   --body-color: #fff;
-  --bg-color: #bcbcbc;
+  --bg-color: #c6c6c6;
   --light-border-color: #dfdfdf;
   --dark-border-color: #808080;
   --cell-size: 40px;
@@ -57,6 +57,10 @@ html {
   margin-right: 10px;
 }
 
+.results__title {
+  cursor: pointer;
+}
+
 .theme__btn {
   width: 30px;
   height: 30px;
@@ -90,14 +94,14 @@ html {
   border-right: 6px solid var(--dark-border-color);
 }
 
-.menu__new-game-btn {
+.menu__new-game-btn,
+.results__button {
   height: 40px;
   width: 100%;
   max-width: 100px;
   font-family: 'Minecraft';
   color: #242424;
   font-size: 10px;
-  text-transform: uppercase;
   cursor: pointer;
   background-color: var(--bg-color);
   border-left: var(--border-size) solid var(--light-border-color);
@@ -106,8 +110,13 @@ html {
   border-bottom: var(--border-size) solid var(--dark-border-color);
 }
 
-.menu__new-game-btn:active {
+.menu__new-game-btn:active,
+.results__button:active {
   border: 2px solid #646464;
+}
+
+.results__button {
+  margin: 10px 0;
 }
 
 .menu__time,
@@ -212,8 +221,54 @@ html {
   max-width: var(--field-size);
 }
 
+.results__table td,
+.results__table th {
+  border: 1px solid #6e6e6e;
+  text-align: center;
+}
+
+.results__table {
+  display: none;
+  position: absolute;
+  background-color: var(--bg-color);
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  border-collapse: collapse;
+  border-spacing: 0;
+  border-left: var(--border-size) solid var(--light-border-color);
+  border-top: var(--border-size) solid var(--light-border-color);
+  border-right: var(--border-size) solid var(--dark-border-color);
+  border-bottom: var(--border-size) solid var(--dark-border-color);
+}
+
+.results__table th {
+  padding: 10px;
+  color: #242424;
+}
+.results__table td {
+  padding: 5px 0;
+  color: #242424;
+}
+
+.dark-bg {
+  display: none;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: rgba(41, 41, 41, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
 .inactive {
   display: none;
+}
+
+.active {
+  display: block;
 }
 
 @media (max-width: 680px) {
