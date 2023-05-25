@@ -2,3 +2,8 @@
   font-family: 'Minecraft';
   src: url(../assets/fonts/minecraft_title_cyrillic_regular.woff);
 }
+
+@font-face {
+  font-family: 'Pixel';
+  src: url(../assets/fonts/04b09.woff2);
+}

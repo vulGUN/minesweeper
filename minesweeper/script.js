@@ -43,7 +43,7 @@ body.innerHTML += `
     <tfoot>
     <tr>
       <td colspan="3">
-        <button class="results__button">Закрыть</button>
+        <button class="results__button">CLOSE</button>
       </td>
     </tr>
   </tfoot>
@@ -110,7 +110,7 @@ function preloadAudio(urls) {
 
 preloadAudio(audioUrls);
 
-clearBoardSize();
+// clearBoardSize();
 initBoard(boardSize);
 
 let buttons = [...document.querySelectorAll('.field__button')];
@@ -139,12 +139,7 @@ function startNewGame() {
   if (endTitle) endTitle.remove();
 }
 
-// установка размеров поля в зависимости от сложности
-function clearBoardSize() {
-  field.innerHTML = '';
-  field.classList.add('field');
-}
-
+// установка размеров поля в зависимости от количества ячеек
 function initBoard(boardSize) {
   for (let j = 0; j < boardSize ** 2; j++) {
     const cell = document.createElement('button');
@@ -452,29 +447,21 @@ inputLevel.addEventListener('change', (e) => {
     case 'easy':
       boardSize = level.easy;
       resizeWidth();
-      clearBoardSize();
-      initBoard(boardSize);
       startNewGame();
       break;
     case 'middle':
       boardSize = level.middle;
       resizeWidth();
-      clearBoardSize();
-      initBoard(boardSize);
       startNewGame();
       break;
     case 'hard':
       boardSize = level.hard;
       resizeWidth();
-      clearBoardSize();
-      initBoard(boardSize);
       startNewGame();
       break;
     default:
       boardSize = level.easy;
       resizeWidth();
-      clearBoardSize();
-      initBoard(boardSize);
       startNewGame();
   }
 });
@@ -487,8 +474,7 @@ bombInput.addEventListener('change', () => {
   startNewGame();
 });
 
-// результаты
-
+// результаты последних 10 игр
 const resultsBtnOpen = document.querySelector('.results__title');
 const resultsBtnClose = document.querySelector('.results__button');
 const results = document.querySelector('.results__table');
@@ -505,9 +491,8 @@ resultsBtnClose.addEventListener('click', () => {
   darkBg.classList.remove('active');
 });
 
-function addResultLine(text) {
-  resultsArr.push([stepCounter, playTime, text]);
-  console.log(resultsArr);
+function addResultLine(result) {
+  resultsArr.push([stepCounter, playTime, result]);
   updateResults();
 }
 
